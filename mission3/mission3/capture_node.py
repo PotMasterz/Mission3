@@ -20,7 +20,7 @@ class CaptureNode(Node):
         self._bridge = CvBridge()
         self._latest_frame = None
 
-        self.create_subscription(Image, '/image_raw', self._image_callback, 10)
+        self.create_subscription(Image, '/camera/color/image_raw', self._image_callback, 10)
         self.create_service(Trigger, '/capture/save', self._save_callback)
         self._path_pub = self.create_publisher(String, '/capture/last_path', 10)
 
