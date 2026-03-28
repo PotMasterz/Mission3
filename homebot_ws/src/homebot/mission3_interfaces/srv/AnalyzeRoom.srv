@@ -1,0 +1,6 @@
+string image_path
+string room_label
+bool is_forbidden
+---
+bool success
+string violations_json

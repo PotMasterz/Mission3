@@ -1,0 +1,6 @@
+string before_path
+string after_path
+string violation_json
+---
+bool complied
+string reason
