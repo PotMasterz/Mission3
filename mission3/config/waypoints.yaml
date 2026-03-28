@@ -1,0 +1,40 @@
+waypoints:
+  - id: wp_start
+    label: "start"
+    forbidden: false
+    x: 0.0
+    y: 0.0
+    yaw: 0.0
+  - id: wp1
+    label: "living_room"
+    forbidden: false
+    x: 0.0
+    y: 0.0
+    yaw: 0.0
+  - id: wp2
+    label: "room_2"
+    forbidden: false
+    x: 0.0
+    y: 0.0
+    yaw: 0.0
+  - id: wp3
+    label: "room_3"
+    forbidden: false
+    x: 0.0
+    y: 0.0
+    yaw: 0.0
+  - id: wp4
+    label: "forbidden_room"
+    forbidden: true
+    x: 0.0
+    y: 0.0
+    yaw: 0.0
+
+settings:
+  compliance_wait_seconds: 17
+  nav_timeout_seconds: 30
+  gpt_timeout_seconds: 20
+  max_retries_nav: 3
+  max_retries_gpt: 3
+  max_retries_compliance: 3
+  image_save_dir: "~/mission3_images"
