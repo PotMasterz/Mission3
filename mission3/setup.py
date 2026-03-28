@@ -1,3 +1,4 @@
+import os
 from setuptools import setup
 
 package_name = 'mission3'
@@ -13,6 +14,7 @@ setup(
             'config/waypoints.yaml',
             'config/prompts.yaml',
         ]),
+        (os.path.join('share', package_name, 'launch'), ['launch/mission3.launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
