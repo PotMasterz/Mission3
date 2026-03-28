@@ -23,6 +23,7 @@ setup(
     entry_points={
         'console_scripts': [
             'capture_node = mission3.capture_node:main',
+            'bridge_node = mission3.bridge_node:main',
         ],
     },
 )
