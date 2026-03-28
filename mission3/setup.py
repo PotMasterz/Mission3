@@ -24,6 +24,7 @@ setup(
         'console_scripts': [
             'capture_node = mission3.capture_node:main',
             'bridge_node = mission3.bridge_node:main',
+            'point_node = mission3.point_node:main',
         ],
     },
 )
