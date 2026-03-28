@@ -28,6 +28,7 @@ setup(
             'bridge_node = mission3.bridge_node:main',
             'point_node = mission3.point_node:main',
             'mission_manager_node = mission3.mission_manager_node:main',
+            'test_full_flow = mission3.test_full_flow:main',
         ],
     },
 )
