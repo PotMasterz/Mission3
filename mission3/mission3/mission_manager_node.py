@@ -8,6 +8,25 @@ from mission3.compliance_helper import ComplianceChecker
 import json
 import yaml
 import os
+import cv2
+from datetime import datetime
+from pathlib import Path
+
+
+# Colors for each rule (BGR)
+RULE_COLORS = {
+    1: (0, 0, 255),    # Red - shoes
+    2: (0, 165, 255),  # Orange - forbidden room
+    3: (0, 255, 255),  # Yellow - littering
+    4: (255, 0, 0),    # Blue - no drink
+}
+
+RULE_LABELS = {
+    1: 'no_shoes',
+    2: 'forbidden_room',
+    3: 'littering',
+    4: 'no_drink',
+}
 
 
 # States
@@ -43,6 +62,10 @@ class MissionManagerNode(Node):
         settings = config.get('settings', {})
         self._compliance_wait = settings.get('compliance_wait_seconds', 17)
         self._max_retries_compliance = settings.get('max_retries_compliance', 3)
+
+        # Detection images directory
+        self._output_dir = Path.home() / 'mission3_images'
+        self._output_dir.mkdir(parents=True, exist_ok=True)
 
         # Patrol order (skip wp_start, it's just the return point)
         self._patrol_list = ['wp1', 'wp2', 'wp3', 'wp4']
@@ -97,6 +120,51 @@ class MissionManagerNode(Node):
         msg.data = event
         self._log_pub.publish(msg)
         self.get_logger().info(f'LOG: {event}')
+
+    def _save_detection_image(self, image_path, violations):
+        """Draw bounding boxes on image and save detection + crop images."""
+        img = cv2.imread(image_path)
+        if img is None:
+            self.get_logger().error(f'Failed to load image for detection: {image_path}')
+            return
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        crop_count = 0
+
+        for v in violations:
+            bbox = v.get('bbox')
+            if not bbox:
+                continue
+
+            x_min = max(0, int(bbox.get('x_min', 0)))
+            y_min = max(0, int(bbox.get('y_min', 0)))
+            x_max = min(img.shape[1], int(bbox.get('x_max', 0)))
+            y_max = min(img.shape[0], int(bbox.get('y_max', 0)))
+
+            if x_max <= x_min or y_max <= y_min:
+                continue
+
+            rule_num = v.get('rule_number', 0)
+            color = RULE_COLORS.get(rule_num, (255, 255, 255))
+            label = f'Rule {rule_num}: {RULE_LABELS.get(rule_num, "unknown")}'
+
+            cv2.rectangle(img, (x_min, y_min), (x_max, y_max), color, 2)
+            label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
+            cv2.rectangle(img, (x_min, y_min - label_size[1] - 10),
+                          (x_min + label_size[0] + 4, y_min), color, -1)
+            cv2.putText(img, label, (x_min + 2, y_min - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+            # Crop and save
+            cropped = cv2.imread(image_path)[y_min:y_max, x_min:x_max]
+            crop_path = self._output_dir / f'crop_{timestamp}_rule{rule_num}_{crop_count}.jpg'
+            cv2.imwrite(str(crop_path), cropped)
+            self.get_logger().info(f'Saved crop: {crop_path}')
+            crop_count += 1
+
+        detection_path = self._output_dir / f'detection_{timestamp}.jpg'
+        cv2.imwrite(str(detection_path), img)
+        self.get_logger().info(f'Saved detection image: {detection_path}')
 
     def _current_waypoint_id(self):
         return self._patrol_list[self._current_wp_index]
@@ -229,6 +297,10 @@ class MissionManagerNode(Node):
             self.get_logger().error('Analyze failed')
             self._state = ERROR_RECOVERY
             return
+
+        # Save detection image with bounding boxes
+        if violations:
+            self._save_detection_image(image_path, violations)
 
         # Filter out already-handled persons
         new_violations = []

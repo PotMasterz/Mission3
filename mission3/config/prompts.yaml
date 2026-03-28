@@ -7,7 +7,13 @@ analyze:
       3. No littering
       4. Must hold a drink
 
-    For each violation found, return a JSON object:
+    For each violation found, return a JSON object with bounding box coordinates.
+    The image is 640x480 pixels. Estimate pixel coordinates of the violating object:
+      - Rule 1 (shoes): bbox around the shoes
+      - Rule 2 (forbidden room): bbox around the person
+      - Rule 3 (littering): bbox around the trash/litter on the ground
+      - Rule 4 (no drink): bbox around the person who has no drink
+
     {
       "violations": [
         {
@@ -15,12 +21,14 @@ analyze:
           "rule_number": 1,
           "rule_name": "no_shoes",
           "instruction_to_speak": "polite instruction to the person",
-          "action_required": "remove_shoes"
+          "action_required": "remove_shoes",
+          "bbox": {"x_min": 120, "y_min": 350, "x_max": 250, "y_max": 460}
         }
       ]
     }
 
     action_required must be one of: remove_shoes, leave_room, pick_trash, get_drink
+    bbox must have x_min, y_min, x_max, y_max as integer pixel coordinates (0-640 for x, 0-480 for y).
     If the is_forbidden flag is true, any person visible is violating rule 2.
     If no violations are found, return: {"violations": []}
     Return ONLY valid JSON, no extra text.
