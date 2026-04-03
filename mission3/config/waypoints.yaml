@@ -6,29 +6,17 @@ waypoints:
     y: 0.0
     yaw: 0.0
   - id: wp1
-    label: "living_room"
+    label: "room_1"
     forbidden: false
-    x: 0.0
-    y: 0.0
-    yaw: 0.0
+    x: 0.0       # <-- EDIT: put your x here
+    y: 0.0       # <-- EDIT: put your y here
+    yaw: 0.0     # <-- EDIT: put your yaw here
   - id: wp2
     label: "room_2"
     forbidden: false
-    x: 0.0
-    y: 0.0
-    yaw: 0.0
-  - id: wp3
-    label: "room_3"
-    forbidden: false
-    x: 0.0
-    y: 0.0
-    yaw: 0.0
-  - id: wp4
-    label: "forbidden_room"
-    forbidden: true
-    x: 0.0
-    y: 0.0
-    yaw: 0.0
+    x: 0.0       # <-- EDIT: put your x here
+    y: 0.0       # <-- EDIT: put your y here
+    yaw: 0.0     # <-- EDIT: put your yaw here
 
 settings:
   compliance_wait_seconds: 17

@@ -67,8 +67,10 @@ class MissionManagerNode(Node):
         self._output_dir = Path.home() / 'mission3_images'
         self._output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Patrol order (skip wp_start, it's just the return point)
-        self._patrol_list = ['wp1', 'wp2', 'wp3', 'wp4']
+        # Patrol order — build from config (skip wp_start)
+        self._patrol_list = [
+            wp['id'] for wp in config['waypoints'] if wp['id'] != 'wp_start'
+        ]
         self._current_wp_index = 0
 
         # Service clients
@@ -257,7 +259,7 @@ class MissionManagerNode(Node):
 
         if all_ready:
             self.get_logger().info('All services ready. Starting mission!')
-            self._speak('Starting mission. Patrolling rooms.')
+            self._speak('เริ่มภารกิจแล้วครับ กำลังตรวจตราห้องต่างๆ')
             self._state = NAVIGATE_TO_WAYPOINT
         else:
             self.get_logger().info('Waiting for services to come online...')
@@ -266,7 +268,7 @@ class MissionManagerNode(Node):
         wp_id = self._current_waypoint_id()
         wp = self._current_waypoint()
         self.get_logger().info(f'Navigating to {wp_id} ({wp["label"]})')
-        self._speak(f'Moving to {wp["label"]}.')
+        self._speak(f'กำลังเคลื่อนที่ไปยัง {wp["label"]} ครับ')
 
         success = self._call_navigate(wp_id)
         if success:
@@ -365,10 +367,10 @@ class MissionManagerNode(Node):
                 f'COMPLIED: {person} | rule {rule_num} | '
                 f'before={self._current_before_path} after={after_path}'
             )
-            self._speak('Thank you for complying.')
+            self._speak('ขอบคุณที่ให้ความร่วมมือครับ')
         else:
             self._log_event(f'FAILED_COMPLIANCE: {person} | rule {rule_num}')
-            self._speak('It seems the issue has not been resolved.')
+            self._speak('ดูเหมือนว่ายังไม่ได้แก้ไขปัญหาครับ')
 
         # Move to next violation
         self._current_violation_index += 1
@@ -385,7 +387,7 @@ class MissionManagerNode(Node):
 
         # Navigate out to nearest non-forbidden waypoint
         safe_wp = self._find_nearest_non_forbidden()
-        self._speak('Please follow me out of this room.')
+        self._speak('กรุณาตามผมออกจากห้องนี้ด้วยครับ ห้องนี้เป็นห้องห้ามเข้า')
         self._call_navigate(safe_wp)
 
         # Navigate back to forbidden room to recheck
@@ -407,7 +409,7 @@ class MissionManagerNode(Node):
                     f'COMPLIED: {person} | rule {rule_num} | '
                     f'before={self._current_before_path} after={image_path}'
                 )
-                self._speak('The room is now clear. Thank you.')
+                self._speak('ห้องนี้ไม่มีคนแล้วครับ ขอบคุณครับ')
                 self._current_violation_index += 1
                 if self._current_violation_index < len(self._current_violations):
                     self._state = HANDLE_VIOLATIONS
@@ -446,17 +448,17 @@ class MissionManagerNode(Node):
             self._state = NAVIGATE_TO_WAYPOINT
 
     def _do_mission_complete(self):
-        self._speak('Mission complete. Returning to start.')
+        self._speak('ภารกิจเสร็จสิ้นครับ กำลังกลับไปจุดเริ่มต้น')
         self.get_logger().info('Mission complete!')
         self._state = RETURN_TO_START
 
     def _do_return_to_start(self):
         success = self._call_navigate('wp_start')
         if success:
-            self._speak('I have returned to the start. Mission finished.')
+            self._speak('กลับถึงจุดเริ่มต้นแล้วครับ ภารกิจเสร็จสมบูรณ์')
             self.get_logger().info('Returned to start. Done.')
         else:
-            self._speak('Failed to return to start, but mission is complete.')
+            self._speak('ไม่สามารถกลับจุดเริ่มต้นได้ แต่ภารกิจเสร็จสิ้นแล้วครับ')
             self.get_logger().error('Failed to navigate to wp_start')
         self._state = DONE
 

@@ -14,13 +14,17 @@ analyze:
       - Rule 3 (littering): bbox around the trash/litter on the ground
       - Rule 4 (no drink): bbox around the person who has no drink
 
+    IMPORTANT: The "instruction_to_speak" field MUST be in Thai language.
+    Tell the person in Thai what rule they are breaking and what they should do.
+    Example: "ขอโทษครับ กรุณาถอดรองเท้าด้วยครับ ที่นี่ไม่อนุญาตให้ใส่รองเท้าในบ้าน"
+
     {
       "violations": [
         {
           "person_description": "brief visual description of the person",
           "rule_number": 1,
           "rule_name": "no_shoes",
-          "instruction_to_speak": "polite instruction to the person",
+          "instruction_to_speak": "polite instruction in THAI language, telling which rule is broken and what to do",
           "action_required": "remove_shoes",
           "bbox": {"x_min": 120, "y_min": 350, "x_max": 250, "y_max": 460}
         }

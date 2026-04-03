@@ -153,7 +153,7 @@ class TestFullFlow(Node):
 
         if not violations:
             msg = String()
-            msg.data = 'No violations detected. Everything looks good.'
+            msg.data = 'ไม่พบการละเมิดกฎใดๆ ทุกอย่างเรียบร้อยดีครับ'
             self._speak_pub.publish(msg)
             self.get_logger().info('No violations found.')
             return
